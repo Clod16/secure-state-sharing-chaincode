@@ -82,7 +82,7 @@ var Chaincode = class {
         logger.debug("___putEntity___");
         if (args.length == 1) {
             try {
-                var entityContainer = JSON.parse(args)
+                var entityContainer = JSON.parse(args[0]);
                 if (typeof entityContainer == 'undefined' || entityContainer == null ||
                     typeof entityContainer != 'object') {
                     return shim.error('entityContainer undefined or null or not object');
@@ -94,7 +94,7 @@ var Chaincode = class {
 
                 try {
                     await stub.putState(keySSS, Buffer.from(entity));
-                    logger.debug('putEntity payload:' + args[1]);
+                    logger.debug('putEntity payload:' + args[0]);
                     logger.debug('putEntity - Store successfull!!');
                     return shim.success(Buffer.from('putEntity - Store successfull!!!'));
                 } catch (e) {
@@ -108,7 +108,7 @@ var Chaincode = class {
 
             }
         } else {
-            return shim.error("Argument wrong, aspected exactly two argument!!");
+            return shim.error("Argument wrong, aspected exactly one argument!!");
         }
     }
 };
