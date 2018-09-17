@@ -36,23 +36,23 @@ var Chaincode = class {
             return this.getEntity(stub, args);
         }
 
-        if(fcn === 'callChaincode'){
+        if (fcn === 'callChaincode') {
             return this.callChaincode(stub, args);
         }
-        
+
 
         logger.error('Error...probably wrong name of fuction!!!' + fcn);
         return shim.error('Error...probably wrong name of fuction!!!' + fcn);
 
     }
 
-    async callChaincode(stub, args){
+    async callChaincode(stub, args) {
         logger.debug("___callChaincode___");
 
         var buffer = new ArrayBuffer(16)
         buffer[0] = args
         resp = this.stub.InvokeChaincode("sss-chaincode", buffer, "ledgerchannel");
-        
+
     }
 
     async getEntity(stub, args) {
@@ -80,23 +80,24 @@ var Chaincode = class {
 
     async putEntity(stub, args) {
         logger.debug("___putEntity___");
-        if (args.length == 2) {
+        if (args.length == 1) {
             try {
-                let entityContainer = JSON.parse(args)
+                var entityContainer = JSON.parse(args)
                 if (typeof entityContainer == 'undefined' || entityContainer == null ||
                     typeof entityContainer != 'object') {
                     return shim.error('entityContainer undefined or null or not object');
-
-                    const entity = entityContainer;
-                    let keySSS = stub.createCompositeKey("", [entity.Id, entity.Type]);
-
                 }
+                logger.debug("Entity parsed:" + entityContainer);
+                const entity = entityContainer;
+                var keySSS = stub.createCompositeKey("", [entity.Id, entity.Type]);
+
+
                 try {
                     await stub.putState(keySSS, Buffer.from(entity));
                     logger.debug('putEntity payload:' + args[1]);
                     logger.debug('putEntity - Store successfull!!');
                     return shim.success(Buffer.from('putEntity - Store successfull!!!'));
-                } catch{
+                } catch (e) {
                     logger.info('putEntity - ERROR CATCH (putEntity): ' + e);
                     return shim.error(e);
 
