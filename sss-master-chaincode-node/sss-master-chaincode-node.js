@@ -7,7 +7,7 @@ var logger = shim.newLogger('SSS-Chaincode');
 
 logger.level = 'debug';
 
-var Chaincode = class {
+var MasterChaincode = class {
 
 
     async Init(stub) {
@@ -28,14 +28,15 @@ var Chaincode = class {
 
         //list of methods
       try{
-        var buffer = new ArrayBuffer(16)
-        buffer[0] = ret
+        var buffer = new ArrayBuffer(16);
+        buffer[0] = ret;
         resp = await stub.InvokeChaincode("sss-chaincode-node", ret, "ledgerchannel");
         return shim.success("InvokeChaincode: " +resp);        
     }catch(e){
         logger.error('InvokeChaincode - ERROR CATCH: ' + e);
         return shim.error('InvokeChaincode - Failed to invoke chaincode: ' + e);
     }
+}
 
     /* async getEntity(stub, args) {
         logger.debug("___getEntity___");
@@ -102,4 +103,4 @@ var Chaincode = class {
     } */
 };
 
-shim.start(new Chaincode());
+shim.start(new MasterChaincode());
