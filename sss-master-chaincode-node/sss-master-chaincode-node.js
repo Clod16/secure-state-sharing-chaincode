@@ -20,27 +20,24 @@ var Chaincode = class {
 
         logger.info('________Invoke________')
         let ret = stub.getFunctionAndParameters();
-        let fcn = ret.fcn;
-        let args = ret.params;
+        //let fcn = ret.fcn;
+        //let args = ret.params;
 
-        logger.info('do this fuction:' + fcn);
-        logger.info(' List of args: ' + args);
+        //logger.info('do this fuction:' + fcn);
+        //logger.info(' List of args: ' + args);
 
         //list of methods
-
-        if (fcn === 'putEntity') {
-            return this.putEntity(stub, args);
-        }
-
-        if (fcn === 'getEntity') {
-            return this.getEntity(stub, args);
-        }
-
-        logger.error('Error...probably wrong name of fuction!!!' + fcn);
-        return shim.error('Error...probably wrong name of fuction!!!' + fcn);
-
+      try{
+        var buffer = new ArrayBuffer(16)
+        buffer[0] = ret
+        resp = await stub.InvokeChaincode("sss-chaincode-node", ret, "ledgerchannel");
+        return shim.success("InvokeChaincode: " +resp);        
+    }catch(e){
+        logger.error('InvokeChaincode - ERROR CATCH: ' + e);
+        return shim.error('InvokeChaincode - Failed to invoke chaincode: ' + e);
     }
-    async getEntity(stub, args) {
+
+    /* async getEntity(stub, args) {
         logger.debug("___getEntity___");
         let entityGetbytes = null;
         if (args.length != 2) {
@@ -102,7 +99,7 @@ var Chaincode = class {
         } else {
             return shim.error("putEntity ERROR: wrong argument!!");
         }
-    }
+    } */
 };
 
 shim.start(new Chaincode());
