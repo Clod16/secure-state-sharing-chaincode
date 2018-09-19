@@ -22,9 +22,15 @@ var Chaincode = class {
         let ret = stub.getFunctionAndParameters();
         let fcn = ret.fcn;
         let args = ret.params;
+        logger.info('getFunctionAndParameters:' + ret);
 
         logger.info('do this fuction:' + fcn);
         logger.info(' List of args: ' + args);
+
+        let argument = stub.getArgs();
+        logger.info('getArgs:' + argument);
+
+
 
         //list of methods
 
@@ -40,6 +46,7 @@ var Chaincode = class {
         return shim.error('Error...probably wrong name of fuction!!!' + fcn);
 
     }
+
     async getEntity(stub, args) {
         logger.debug("___getEntity___");
         let entityGetbytes = null;
@@ -55,8 +62,8 @@ var Chaincode = class {
             }
             const stringGet = datatransform.Transform.bufferToString(entityGetbytes);
             logger.debug('getEntity extract: ' + entityGetbytes);
-            let payload = JSON.parse(stringGet);
-            return shim.success(Buffer.from(payload));
+            //let payload = JSON.parse(stringGet);
+            return shim.success(Buffer.from(stringGet));
         } catch (e) {
             logger.error('getEntity - ERROR CATCH: ' + e);
             return shim.error('getEntity - Failed to get state with key: ' + keySSS);

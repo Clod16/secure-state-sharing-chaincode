@@ -1,11 +1,11 @@
 {
-    "name": "sss-chaincode-node",
+    "name": "sss-master-chaincode-node",
     "version": "1.0.0",
     "description": "",
-    "main": "sss-chaincode-node.js",
+    "main": "sss-master-chaincode-node.js",
     "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
-      "start": "node sss-chaincode-node.js"
+      "start": "node sss-master-chaincode-node.js"
     },
     "author": "",
     "license": "ISC",
