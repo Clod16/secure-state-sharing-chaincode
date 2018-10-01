@@ -1,6 +1,6 @@
 //clod16 chaincode
 
-
+//var flatten = require('flat')
 const shim = require('fabric-shim');
 const datatransform = require("./utils/datatransform");
 var logger = shim.newLogger('SSS-Chaincode');
@@ -41,10 +41,90 @@ var Chaincode = class {
         if (fcn === 'getEntity') {
             return this.getEntity(stub, args);
         }
-
+        if (fcn === 'updateEntity') {
+            return this.updateEntity(stub, args);
+        }
+        if (fcn === 'deleteEntity'){
+            return this.deleteEntity(stub, args);
+        }
         logger.error('Error...probably wrong name of fuction!!!' + fcn);
         return shim.error('Error...probably wrong name of fuction!!!' + fcn);
 
+    }
+    
+    async deleteEntity(stub, args){
+        logger.debug("___deleteEntity___");
+        let promiseDelete = null;
+        if (args.length != 2) {
+            return shim.error("Number of argument is wrong, expected two!!");
+        }
+        let keySSS = stub.createCompositeKey("", [args[0], args[1]]);
+
+        try {
+            logger.info("Deleting entity...")
+            promiseDelete = await stub.deleteState(keySSS);
+            if(!promiseDelete){
+                return shim.error("stub.deleteEntity(): no entity with key: " +keySSS);
+            }
+            return shim.success(Buffer.from(promiseDelete));
+        }
+        catch (e){
+            logger.error('deleteEntity - ERROR CATCH: ' + e);
+            return shim.error(e);
+
+        }
+    }
+
+
+    async updateEntity(stub, args) {
+        logger.debug("___updateEntity___");
+        if (args.length == 1) {
+            try {
+                //logger.info("args:" +args[0])
+                let entityInput = JSON.parse(args[0]);
+                if (typeof entityInput == 'undefined' || entityInput == null ||
+                    typeof entityInput != 'object') {
+                    return shim.error('entityInput undefined or null or not object');
+                }
+                logger.info("Entity parsed:" + entityInput);
+                //const entity = entityInput;
+
+                try {
+
+                    var keySSS = stub.createCompositeKey("", [entityInput.id, entityInput.type]);
+                    logger.info("keySSS:" + keySSS);
+                    let entityGetbytes = await stub.getState(keySSS);
+                    if (!entityGetbytes) {
+                        return shim.error(' Entity with key' + keySSS + ' not found!!!');
+                    }
+                    const entityString = datatransform.Transform.bufferToString(entityGetbytes);
+                    let entityGetFlat = JSON.parse(entityString);
+                    //let entityInputFlat = flatten(entityInput);
+                    //let entityGetFlat = flatten(entityGet);
+
+                    for (var field in entityInput) {
+                        if (entityInput.hasOwnProperty(field) != entityGetFlat.hasOwnProperty(field)) {
+                            return shim.error('updateEntity Error: Incorrect structure!!!');
+                        }
+                    }
+                    logger.info("updateEntity: Correct structure!!");
+                    logger.info(" Start updating the entity...");
+                    await stub.putState(keySSS, Buffer.from(JSON.stringify(entityInput)));
+                    logger.debug('updateEntity - Store successfull!!!');
+                    return shim.success(Buffer.from('updateEntity - Update successfull!'));
+
+
+                } catch (e) {
+                    logger.error('updateEntity - ERROR CATCH (updateEntity): ' + e);
+                    return shim.error(e);
+                }
+
+            } catch (e) {
+                logger.error('putEntity - ERROR CATCH (JSON.parse()): ' + e);
+                return shim.error('Parse error found');
+            }
+
+        }
     }
 
     async getEntity(stub, args) {
@@ -53,7 +133,7 @@ var Chaincode = class {
         if (args.length != 2) {
             return shim.error("Number of argument is wrong, expected two!!");
         }
-        let keySSS = stub.createCompositeKey("SSS", [args[0], args[1]]);
+        let keySSS = stub.createCompositeKey("", [args[0], args[1]]);
 
         try {
             entityGetbytes = await stub.getState(keySSS);
@@ -75,7 +155,7 @@ var Chaincode = class {
         logger.debug("___putEntity___");
         if (args.length == 1) {
             try {
-                logger.info("args:" +args[0])
+                logger.info("args:" + args[0])
                 let entityContainer = JSON.parse(args[0]);
                 if (typeof entityContainer == 'undefined' || entityContainer == null ||
                     typeof entityContainer != 'object') {
@@ -86,12 +166,12 @@ var Chaincode = class {
 
 
                 try {
-                    logger.info("ID:" +entityContainer.id);
-                    logger.info("Type:" +entityContainer.type);
+                    logger.info("ID:" + entityContainer.id);
+                    logger.info("Type:" + entityContainer.type);
 
-                    var keySSS = stub.createCompositeKey("SSS", [entityContainer.id, entityContainer.type]);
-                    logger.info("keySSS:" +keySSS);
-                    
+                    var keySSS = stub.createCompositeKey("", [entityContainer.id, entityContainer.type]);
+                    logger.info("keySSS:" + keySSS);
+
                     await stub.putState(keySSS, Buffer.from(JSON.stringify(entityContainer)));
                     logger.debug('putEntity payload:' + args[0]);
                     logger.debug('putEntity - Store successfull!!');
