@@ -1,9 +1,9 @@
 [
   {
-    "name": "carCollection",
+    "name": "entityCollection",
     "policy": "Org1MSP.member",
     "requiredPeerCount": 0,
-    "maxPeerCount": 3,
+    "maxPeerCount": 1,
     "blockToLive": 1000000
   }
 ]
