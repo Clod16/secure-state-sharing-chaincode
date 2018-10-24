@@ -7,6 +7,14 @@ var logger = shim.newLogger("SSS-Chaincode");
 
 logger.level = "debug";
 
+var Profile = Object.freeze({
+  "fabric-user": "",
+  "Admin": "admin",
+  "User1": "",
+});
+
+
+
 var Chaincode = class {
   async Init(stub) {
     logger.debug("________Init________");
@@ -31,7 +39,6 @@ var Chaincode = class {
     if (fcn === "putEntity") {
       return this.putEntity(stub, args);
     }
-
     if (fcn === "getEntity") {
       return this.getEntity(stub, args);
     }
@@ -41,17 +48,35 @@ var Chaincode = class {
     if (fcn === "deleteEntity") {
       return this.deleteEntity(stub, args);
     }
-    if (fcn === "putPrivateEntity") {
+    if (fcn === "updateEntityAttr"){
+      return this.updateEntityAttr(stub , args);
+    }
+    if (fcn === "getAttributeData"){
+      return this.getAttributeData(stub , args);
+    }
+    if (fcn === "updateAttributeData"){
+      return this.updateAttributeData(stub , args);
+    }
+    if (fcn === "deleteAttribute"){
+      return this.deleteAttribute(stub , args);
+    }
+    if (fcn === "updateEntityAttr"){
+      return this.updateEntityAttr(stub , args);
+    }
+    if (fcn === "updateEntityAttr"){
+      return this.updateEntityAttr(stub , args);
+    }
+   /*  if (fcn === "putPrivateEntity") {
       return this.putPrivateEntity(stub, args);
     }
     if (fcn === "getPrivateEntity") {
       return this.getPrivateEntity(stub, args);
-    }
+    } */
     logger.error("Error...probably wrong name of fuction!!!" + fcn);
     return shim.error("Error...probably wrong name of fuction!!!" + fcn);
   }
 
-  async putPrivateEntity(stub, args) {
+  /* async putPrivateEntity(stub, args) {
     logger.debug("___putPrivateEntity___");
     if (args.length == 1) {
       try {
@@ -71,8 +96,9 @@ var Chaincode = class {
             entityContainer.type
           ]);
 
-          await stub.putPrivateData(
-            { privateCollection: "entityCollection" },
+          await stub.putPrivateData({
+              privateCollection: "entityCollection"
+            },
             keySSS,
             Buffer.from(JSON.stringify(entityContainer))
           );
@@ -104,8 +130,9 @@ var Chaincode = class {
     let keySSS = stub.createCompositeKey("private", [args[0], args[1]]);
 
     try {
-      entityGetbytes = await stub.getPrivateData(
-        { privateCollection: "carCollection" },
+      entityGetbytes = await stub.getPrivateData({
+          privateCollection: "carCollection"
+        },
         keySSS
       );
       if (!entityGetbytes) {
@@ -120,7 +147,7 @@ var Chaincode = class {
         "getPrivateEntity - Failed to get state with key: " + keySSS
       );
     }
-  }
+  } */
 
   async deleteEntity(stub, args) {
     logger.debug("___deleteEntity___");
