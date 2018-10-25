@@ -9,11 +9,9 @@ logger.level = "debug";
 
 var Profile = Object.freeze({
   "fabric-user": "",
-  "Admin": "admin",
-  "User1": "",
+  Admin: "admin",
+  User1: ""
 });
-
-
 
 var Chaincode = class {
   async Init(stub) {
@@ -48,19 +46,19 @@ var Chaincode = class {
     if (fcn === "deleteEntity") {
       return this.deleteEntity(stub, args);
     }
-    if (fcn === "updateEntityAttr"){
-      return this.updateEntityAttr(stub , args);
+    if (fcn === "updateEntityAttr") {
+      return this.updateEntityAttr(stub, args);
     }
-    if (fcn === "getAttributeData"){
-      return this.getAttributeData(stub , args);
+    if (fcn === "getAttributeData") {
+      return this.getAttributeData(stub, args);
     }
-    if (fcn === "updateAttributeData"){
-      return this.updateAttributeData(stub , args);
+    if (fcn === "updateAttributeData") {
+      return this.updateAttributeData(stub, args);
     }
-    if (fcn === "deleteAttribute"){
-      return this.deleteAttribute(stub , args);
+    if (fcn === "deleteAttribute") {
+      return this.deleteAttribute(stub, args);
     }
-   /*  if (fcn === "putPrivateEntity") {
+    /*  if (fcn === "putPrivateEntity") {
       return this.putPrivateEntity(stub, args);
     }
     if (fcn === "getPrivateEntity") {
@@ -70,22 +68,14 @@ var Chaincode = class {
     return shim.error("Error...probably wrong name of fuction!!!" + fcn);
   }
 
-  async updateEntityAttr(stub, args){
+  async updateEntityAttr(stub, args) {}
 
-  }
+  async getAttributeData(stub, args) {}
 
-  async getAttributeData(stub, args){
+  async updateAttributeData(stub, args) {}
 
-  }
+  async deleteAttribute(stub, args) {}
 
-  async updateAttributeData(stub, args){
-
-  }
-
-  async deleteAttribute(stub, args){
-
-  }
-  
   async deleteEntity(stub, args) {
     logger.debug("___deleteEntity___");
     let promiseDelete = null;
@@ -100,10 +90,10 @@ var Chaincode = class {
       if (!promiseDelete) {
         return shim.error("stub.deleteState(): no entity with key: " + keySSS);
       }
-      
-      let eventString = "deleteEntity(): Entity deleted with key: " +keySSS;
-      stub.setEvent('FE_SSS_UPDATE-ENTITY', Buffer.from(eventString));
-      
+
+      let eventString = "deleteEntity(): Entity deleted with key: " + keySSS;
+      stub.setEvent("FE_SSS_UPDATE-ENTITY", Buffer.from(eventString));
+
       return shim.success(Buffer.from(promiseDelete));
     } catch (e) {
       logger.error("deleteEntity - ERROR CATCH: " + e);
@@ -156,9 +146,12 @@ var Chaincode = class {
           logger.info(" Start updating the entity...");
           await stub.putState(keySSS, Buffer.from(JSON.stringify(entityInput)));
           logger.debug("updateEntity - Store successfull!!!");
-          
-          stub.setEvent('FE_SSS_UPDATE-ENTITY', Buffer.from(JSON.stringify(entityInput)));
-          
+
+          stub.setEvent(
+            "FE_SSS_UPDATE-ENTITY",
+            Buffer.from(JSON.stringify(entityInput))
+          );
+
           return shim.success(
             Buffer.from("updateEntity - Update successfull!")
           );
@@ -189,9 +182,9 @@ var Chaincode = class {
       const stringGet = datatransform.Transform.bufferToString(entityGetbytes);
       logger.debug("getEntity extract: " + stringGet);
       //let payload = JSON.parse(stringGet);
-      
-      stub.setEvent('FE_SSS_GET_ENTITY', Buffer.from(stringGet));
-      
+
+      stub.setEvent("FE_SSS_GET_ENTITY", Buffer.from(stringGet));
+
       return shim.success(Buffer.from(stringGet));
     } catch (e) {
       logger.error("getEntity - ERROR CATCH: " + e);
@@ -231,9 +224,12 @@ var Chaincode = class {
           );
           logger.debug("putEntity payload:" + args[0]);
           logger.debug("putEntity - Store successfull!!");
-          
-          stub.setEvent('FE_SSS_PUT-ENTITY', Buffer.from(JSON.stringify(entityContainer)));
-          
+
+          stub.setEvent(
+            "FE_SSS_PUT-ENTITY",
+            Buffer.from(JSON.stringify(entityContainer))
+          );
+
           return shim.success(Buffer.from("putEntity - Store successfull!!!"));
         } catch (e) {
           logger.error("putEntity - ERROR CATCH (putEntity): " + e);
@@ -250,8 +246,6 @@ var Chaincode = class {
 };
 
 shim.start(new Chaincode());
-
-
 
 //PRIVATE DATA
 
