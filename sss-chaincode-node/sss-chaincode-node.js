@@ -91,8 +91,8 @@ var Chaincode = class {
         return shim.error("stub.deleteState(): no entity with key: " + keySSS);
       }
 
-      let eventString = "deleteEntity(): Entity deleted with key: " + keySSS;
-      stub.setEvent("FE_SSS_UPDATE-ENTITY", Buffer.from(eventString));
+      //let eventString = args[0] + args[1];
+      stub.setEvent("FE_SSS_DELETE-ENTITY", Buffer.from(args));
 
       return shim.success(Buffer.from(promiseDelete));
     } catch (e) {
@@ -148,7 +148,7 @@ var Chaincode = class {
           logger.debug("updateEntity - Store successfull!!!");
 
           stub.setEvent(
-            "FE_SSS_UPDATE-ENTITY",
+            "FE_SSS_PUT-ENTITY",
             Buffer.from(JSON.stringify(entityInput))
           );
 
@@ -183,7 +183,7 @@ var Chaincode = class {
       logger.debug("getEntity extract: " + stringGet);
       //let payload = JSON.parse(stringGet);
 
-      stub.setEvent("FE_SSS_GET_ENTITY", Buffer.from(stringGet));
+     // stub.setEvent("FE_SSS_GET_ENTITY", Buffer.from(stringGet));
 
       return shim.success(Buffer.from(stringGet));
     } catch (e) {
@@ -226,7 +226,7 @@ var Chaincode = class {
           logger.debug("putEntity - Store successfull!!");
 
           stub.setEvent(
-            "FE_SSS_PUT-ENTITY",
+            "FE_SSS_POST-ENTITY",
             Buffer.from(JSON.stringify(entityContainer))
           );
 
