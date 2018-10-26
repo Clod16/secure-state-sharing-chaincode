@@ -46,18 +46,6 @@ var Chaincode = class {
     if (fcn === "deleteEntity") {
       return this.deleteEntity(stub, args);
     }
-    if (fcn === "updateEntityAttr") {
-      return this.updateEntityAttr(stub, args);
-    }
-    if (fcn === "getAttributeData") {
-      return this.getAttributeData(stub, args);
-    }
-    if (fcn === "updateAttributeData") {
-      return this.updateAttributeData(stub, args);
-    }
-    if (fcn === "deleteAttribute") {
-      return this.deleteAttribute(stub, args);
-    }
     /*  if (fcn === "putPrivateEntity") {
       return this.putPrivateEntity(stub, args);
     }
@@ -68,21 +56,13 @@ var Chaincode = class {
     return shim.error("Error...probably wrong name of fuction!!!" + fcn);
   }
 
-  async updateEntityAttr(stub, args) {}
-
-  async getAttributeData(stub, args) {}
-
-  async updateAttributeData(stub, args) {}
-
-  async deleteAttribute(stub, args) {}
-
   async deleteEntity(stub, args) {
     logger.debug("___deleteEntity___");
     let promiseDelete = null;
     if (args.length != 2) {
       return shim.error("Number of argument is wrong, expected two!!");
     }
-    let keySSS = stub.createCompositeKey("", [args[0], args[1]]);
+    let keySSS = stub.createCompositeKey("FE_SSS", [args[0], args[1]]);
 
     try {
       logger.info("Deleting entity...");
@@ -92,12 +72,17 @@ var Chaincode = class {
       }
 
       //let eventString = args[0] + args[1];
-      stub.setEvent("FE_SSS_DELETE-ENTITY", Buffer.from(args));
+      let eventKey = {
+        id:args[0],
+        type:args[1]
+      }
+      stub.setEvent("FE_SSS_DELETE-ENTITY", Buffer.from(JSON.stringify(eventKey)));
 
       return shim.success(Buffer.from(promiseDelete));
     } catch (e) {
+      let revertEntityByte = await stub.getState(keySSS);
       logger.error("deleteEntity - ERROR CATCH: " + e);
-      return shim.error(e);
+      return shim.error(datatransform.Transform.bufferToString(revertEntityByte));
     }
   }
 
@@ -118,7 +103,7 @@ var Chaincode = class {
         //const entity = entityInput;
 
         try {
-          var keySSS = stub.createCompositeKey("", [
+          let keySSS = stub.createCompositeKey("FE_SSS", [
             entityInput.id,
             entityInput.type
           ]);
@@ -156,8 +141,14 @@ var Chaincode = class {
             Buffer.from("updateEntity - Update successfull!")
           );
         } catch (e) {
+          let keySSS = stub.createCompositeKey("FE_SSS", [
+            entityInput.id,
+            entityInput.type
+          ]);
+          let revertEntityByte = await stub.getState(keySSS);
           logger.error("updateEntity - ERROR CATCH (updateEntity): " + e);
-          return shim.error(e);
+          return shim.error(datatransform.Transform.bufferToString(
+            revertEntityByte));
         }
       } catch (e) {
         logger.error("putEntity - ERROR CATCH (JSON.parse()): " + e);
@@ -172,7 +163,7 @@ var Chaincode = class {
     if (args.length != 2) {
       return shim.error("Number of argument is wrong, expected two!!");
     }
-    let keySSS = stub.createCompositeKey("", [args[0], args[1]]);
+    let keySSS = stub.createCompositeKey("FE_SSS", [args[0], args[1]]);
 
     try {
       entityGetbytes = await stub.getState(keySSS);
@@ -183,7 +174,7 @@ var Chaincode = class {
       logger.debug("getEntity extract: " + stringGet);
       //let payload = JSON.parse(stringGet);
 
-     // stub.setEvent("FE_SSS_GET_ENTITY", Buffer.from(stringGet));
+      // stub.setEvent("FE_SSS_GET_ENTITY", Buffer.from(stringGet));
 
       return shim.success(Buffer.from(stringGet));
     } catch (e) {
@@ -212,7 +203,7 @@ var Chaincode = class {
           logger.info("ID:" + entityContainer.id);
           logger.info("Type:" + entityContainer.type);
 
-          var keySSS = stub.createCompositeKey("", [
+          var keySSS = stub.createCompositeKey("FE_SSS", [
             entityContainer.id,
             entityContainer.type
           ]);
@@ -232,8 +223,12 @@ var Chaincode = class {
 
           return shim.success(Buffer.from("putEntity - Store successfull!!!"));
         } catch (e) {
+          let revertKey = {
+            id:entityContainer.id,
+            type:entityContainer.type 
+          };
           logger.error("putEntity - ERROR CATCH (putEntity): " + e);
-          return shim.error(e);
+          return shim.error(JSON.stringify(revertKey));
         }
       } catch (e) {
         logger.error("putEntity - ERROR CATCH (JSON.parse()): " + e);
