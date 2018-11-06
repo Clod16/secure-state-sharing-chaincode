@@ -46,6 +46,9 @@ var Chaincode = class {
     if (fcn === "deleteEntity") {
       return this.deleteEntity(stub, args);
     }
+    if ( fcn === "migrate") {
+      return this.migrate(stub);
+    }
     /*  if (fcn === "putPrivateEntity") {
       return this.putPrivateEntity(stub, args);
     }
@@ -54,6 +57,26 @@ var Chaincode = class {
     } */
     logger.error("Error...probably wrong name of fuction!!!" + fcn);
     return shim.error("Error...probably wrong name of fuction!!!" + fcn);
+  }
+
+  async migrate(stub){
+    logger.debug("___migrate___");
+
+    let entityGetbytes = null;
+    
+    try {
+      entityGetbytes = await stub.getState("FE_SSS");
+      if (!entityGetbytes) {
+        return shim.error(" getState() Error: retrive empty data!!!");
+      }
+      const stringGet = datatransform.Transform.bufferToString(entityGetbytes);
+      logger.debug("getEntity extract: " + stringGet);
+      //stub.setEvent("FE_SSS_MIGRATE", Buffer.from(stringGet));
+      return shim.success(Buffer.from(stringGet));
+    } catch (e) {
+      logger.error("migrate() - ERROR CATCH: " + e);
+      return shim.error("migrate() - ERROR CATCH!!" + e);
+    }
   }
 
   async deleteEntity(stub, args) {
@@ -136,7 +159,8 @@ var Chaincode = class {
             "FE_SSS_PUT-ENTITY",
             Buffer.from(JSON.stringify(entityInput))
           );
-
+          
+          logger.info("eventName = FE_SSS_PUT-ENTITY payload: " +JSON.stringify(entityInput));
           return shim.success(
             Buffer.from("updateEntity - Update successfull!")
           );
