@@ -63,16 +63,17 @@ var Chaincode = class {
     logger.debug("___migrate___");
 
     let entityGetbytes = null;
-    
+    let arg = new Array();
+    arg = [];
     try {
-      entityGetbytes = await stub.getState("FE_SSS");
+      entityGetbytes = await stub.getStateByPartialCompositeKey("FE_SSS", arg);
       if (!entityGetbytes) {
         return shim.error(" getState() Error: retrive empty data!!!");
       }
-      const stringGet = datatransform.Transform.bufferToString(entityGetbytes);
-      logger.debug("getEntity extract: " + stringGet);
+      const strings = await  datatransform.Transform.iteratorToList(entityGetbytes);
+      logger.debug("getEntity extract: " + strings);
       //stub.setEvent("FE_SSS_MIGRATE", Buffer.from(stringGet));
-      return shim.success(Buffer.from(stringGet));
+      return shim.success(Buffer.from(JSON.stringify(strings)));
     } catch (e) {
       logger.error("migrate() - ERROR CATCH: " + e);
       return shim.error("migrate() - ERROR CATCH!!" + e);
